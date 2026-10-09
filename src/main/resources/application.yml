@@ -1,0 +1,100 @@
+# Values come from backend/.env (imported below) or real environment variables.
+# Real environment variables always win over .env, so production can override anything.
+spring:
+  application:
+    name: cmai-backend
+  config:
+    import: "optional:file:.env[.properties]"
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: "${DB_URL:jdbc:mysql://localhost:3306/cmai?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}"
+    username: "${DB_USERNAME:root}"
+    password: "${DB_PASSWORD:}"
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: "${DDL_AUTO:update}"
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  data:
+    redis:
+      url: "${REDIS_URL:redis://127.0.0.1:6379}"
+      timeout: 5s
+  servlet:
+    multipart:
+      max-file-size: 15MB
+      max-request-size: 16MB
+  ai:
+    # Spring AI talks to Groq through its OpenAI-compatible API.
+    model:
+      chat: openai
+      embedding: none
+      image: none
+      moderation: none
+      audio:
+        speech: none
+        transcription: none
+    openai:
+      api-key: "${GROQ_API_KEY}"
+      base-url: https://api.groq.com/openai
+      chat:
+        options:
+          model: "${GROQ_MODEL:openai/gpt-oss-120b}"
+          temperature: 0.2
+          max-tokens: 4000
+
+server:
+  port: "${PORT:8000}"
+  # Lets Tomcat trust X-Forwarded-For only from private-network proxies (for correct client IPs).
+  forward-headers-strategy: native
+  error:
+    include-message: never
+    include-stacktrace: never
+
+logging:
+  level:
+    com.cmai: INFO
+
+app:
+  env: "${APP_ENV:development}"
+  cors:
+    # Comma separated list, e.g. https://cmai.example.com,http://localhost:5173
+    allowed-origins: "${FRONTEND_URL:http://localhost:5173}"
+  session:
+    cookie-name: session
+    ttl-seconds: 604800
+  cookie:
+    secure: "${COOKIE_SECURE:true}"
+    same-site: "${COOKIE_SAME_SITE:None}"
+  rate-limit:
+    window-seconds: 900
+    max-requests: 200
+  coins:
+    signup-bonus: 150
+    interview-cost: "${INTERVIEW_COIN_COST:0}"
+  ai:
+    api-key: "${GROQ_API_KEY}"
+    # LangChain4j uses the /v1 form of the same Groq endpoint.
+    base-url: https://api.groq.com/openai/v1
+    model: "${GROQ_MODEL:openai/gpt-oss-120b}"
+    temperature: 0.2
+    max-tokens: 4000
+    max-retries: 2
+    timeout-seconds: 120
+  firebase:
+    project-id: "${FIREBASE_PROJECT_ID:}"
+    service-account-path: "${FIREBASE_SERVICE_ACCOUNT_PATH:./serviceAccountKey.json}"
+    # Optional: the whole service-account JSON as a string (handy on hosts without file mounts)
+    service-account-json: "${FIREBASE_SERVICE_ACCOUNT_JSON:}"
+  razorpay:
+    key-id: "${RAZORPAY_KEY_ID}"
+    key-secret: "${RAZORPAY_KEY_SECRET}"
+  youtube:
+    base-url: "${YOUTUBE_BASE_URL:https://www.googleapis.com/youtube/v3/search}"
+    api-key: "${YOUTUBE_API_KEY:}"

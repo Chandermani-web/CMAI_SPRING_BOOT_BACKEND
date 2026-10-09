@@ -1,0 +1,7 @@
+target/
+.env
+serviceAccountKey.json
+*.log
+.idea/
+.vscode/
+*.iml
